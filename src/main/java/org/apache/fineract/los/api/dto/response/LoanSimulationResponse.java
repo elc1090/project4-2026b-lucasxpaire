@@ -19,21 +19,19 @@
 
 package org.apache.fineract.los.api.dto.response;
 
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.math.BigDecimal;
 
 @Getter
 @Builder
 public class LoanSimulationResponse {
 
-    private final BigDecimal monthlyInstallment;
-    private final BigDecimal totalInterest;
-    private final BigDecimal monthlyInterestRate;
-    private final BigDecimal totalAmountToPay;
-    private final BigDecimal debtToIncomeRatio;
-    private final String eligibilityStatus;
-    private final String recommendationMessage;
-
+  private final BigDecimal monthlyInstallment;
+  private final BigDecimal totalInterest;
+  private final BigDecimal monthlyInterestRate;
+  private final BigDecimal totalAmountToPay;
+  private final BigDecimal debtToIncomeRatio;
+  private final String eligibilityStatus;
+  private final String recommendationMessage;
 }

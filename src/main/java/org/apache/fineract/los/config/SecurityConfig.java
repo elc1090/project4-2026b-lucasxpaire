@@ -141,6 +141,7 @@ public class SecurityConfig {
                         "/actuator/health",
                         "/actuator/info",
                         "/api/v1/auth/**",
+                        "/api/v1/loan-simulation/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/v3/api-docs/**")

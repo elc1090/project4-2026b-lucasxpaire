@@ -20,9 +20,8 @@
 package org.apache.fineract.los.dto.request;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
-
 import java.math.BigDecimal;
+import lombok.*;
 
 @Getter
 @Setter
@@ -31,26 +30,26 @@ import java.math.BigDecimal;
 @Builder
 public class LoanSimulationRequest {
 
-    @NotNull
-    @DecimalMin(value = "0.01", message = "requestedAmount must be greater than zero")
-    private BigDecimal requestedAmount;
+  @NotNull
+  @DecimalMin(value = "0.01", message = "requestedAmount must be greater than zero")
+  private BigDecimal requestedAmount;
 
-    @NotNull(message = "tenorMonths is required")
-    @Min(value = 1, message = "tenorMonths must be at least 1")
-    private Integer tenorMonths;
+  @NotNull(message = "tenorMonths is required")
+  @Min(value = 1, message = "tenorMonths must be at least 1")
+  private Integer tenorMonths;
 
-    @NotNull
-    @Size(max = 50, message = "loanPurpose must not exceed 50 characters")
-    @Pattern(
-        regexp = "^(AGRICULTURE|EDUCATION|BUSINESS|PERSONAL|HOUSING|MEDICAL|OTHER)$",
-        message = "loanPurpose must be one of: AGRICULTURE, EDUCATION, BUSINESS, PERSONAL, HOUSING, MEDICAL, OTHER")
-    private String loanPurpose;
+  @NotNull
+  @Size(max = 50, message = "loanPurpose must not exceed 50 characters")
+  @Pattern(
+      regexp = "^(AGRICULTURE|EDUCATION|BUSINESS|PERSONAL|HOUSING|MEDICAL|OTHER)$",
+      message = "loanPurpose must be one of: AGRICULTURE, EDUCATION, BUSINESS, PERSONAL, HOUSING, MEDICAL, OTHER")
+  private String loanPurpose;
 
-    @NotNull
-    @PositiveOrZero(message = "monthlyIncome must be zero or positive")
-    private BigDecimal monthlyIncome;
+  @NotNull
+  @DecimalMin(value = "0.01", message = "monthlyIncome must be greater than zero")
+  private BigDecimal monthlyIncome;
 
-    @NotNull
-    @PositiveOrZero(message = "existingLoanObligations must be zero or positive")
-    private BigDecimal existingLoanObligations;
+  @NotNull(message = "existingLoanObligations is required")
+  @PositiveOrZero(message = "existingLoanObligations must be zero or positive")
+  private BigDecimal existingLoanObligations;
 }

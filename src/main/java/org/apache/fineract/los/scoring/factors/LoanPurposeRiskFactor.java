@@ -99,7 +99,7 @@ public class LoanPurposeRiskFactor implements ScoringFactor {
     return FACTOR_NAME;
   }
 
-  private int resolvePercentage(final String purpose) {
+  public int resolvePercentage(final String purpose) {
     if (!StringUtils.hasText(purpose)) {
       return DEFAULT_PERCENTAGE;
     }
