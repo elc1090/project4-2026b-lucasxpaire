@@ -218,11 +218,23 @@
                 [style.width.%]="res.debtToIncomeRatio > 100 ? 100 : res.debtToIncomeRatio"
               ></div>
             </div>
-            <div class="meter-labels">
-              <span>0%</span>
-              <span class="threshold-label">30% (Low)</span>
-              <span class="threshold-label">40% (Mod)</span>
-              <span>100%</span>
+            <div class="meter-scale">
+              <div class="scale-col start">
+                <span class="scale-val">0%</span>
+                <span class="scale-label"></span>
+              </div>
+              <div class="scale-col low">
+                <span class="scale-val">30%</span>
+                <span class="scale-label text-low">Low</span>
+              </div>
+              <div class="scale-col med">
+                <span class="scale-val">40%</span>
+                <span class="scale-label text-med">Medium</span>
+              </div>
+              <div class="scale-col high">
+                <span class="scale-val">100%</span>
+                <span class="scale-label text-high">High</span>
+              </div>
             </div>
           </div>
 
