@@ -21,3 +21,4 @@ export * from './credit-scoring.service';
 export * from './customer-credit-scoring.service';
 export * from './auth.service';
 export * from './staff-auth.service';
+export * from './loan-simulation.service';
