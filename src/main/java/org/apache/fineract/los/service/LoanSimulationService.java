@@ -42,7 +42,10 @@ public class LoanSimulationService {
   public LoanSimulationResponse simulate(LoanSimulationRequest request) {
     BigDecimal monthlyInterestRate = getInterestPurpose(request.getLoanPurpose());
     BigDecimal monthlyInstallment = getMonthlyInstallment(request, monthlyInterestRate);
-    BigDecimal totalAmountToPay = monthlyInstallment.multiply(BigDecimal.valueOf(request.getTenorMonths())).setScale(MONETARY_SCALE, RoundingMode.HALF_UP);
+    BigDecimal totalAmountToPay =
+        monthlyInstallment
+            .multiply(BigDecimal.valueOf(request.getTenorMonths()))
+            .setScale(MONETARY_SCALE, RoundingMode.HALF_UP);
     BigDecimal totalInterest = totalAmountToPay.subtract(request.getRequestedAmount());
     BigDecimal debtToIncomeRatio = getDebtToIncomeRatio(request, monthlyInstallment);
     EligibilityRisk eligibilityStatus = EligibilityRisk.from(debtToIncomeRatio);
@@ -58,24 +61,34 @@ public class LoanSimulationService {
         .build();
   }
 
-  private BigDecimal getDebtToIncomeRatio(LoanSimulationRequest request, BigDecimal newMonthlyInstallment) {
-    if (request.getMonthlyIncome() == null || request.getMonthlyIncome().compareTo(BigDecimal.ZERO) <= 0) {
+  private BigDecimal getDebtToIncomeRatio(
+      LoanSimulationRequest request, BigDecimal newMonthlyInstallment) {
+    if (request.getMonthlyIncome() == null
+        || request.getMonthlyIncome().compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("monthlyIncome must be greater than zero");
     }
-    BigDecimal existingObligations = request.getExistingLoanObligations() != null
+    BigDecimal existingObligations =
+        request.getExistingLoanObligations() != null
             ? request.getExistingLoanObligations()
             : BigDecimal.ZERO;
-    BigDecimal numerator = existingObligations.add(newMonthlyInstallment).multiply(BigDecimal.valueOf(100));
+    BigDecimal numerator =
+        existingObligations.add(newMonthlyInstallment).multiply(BigDecimal.valueOf(100));
     BigDecimal denominator = request.getMonthlyIncome();
     return numerator.divide(denominator, MONETARY_SCALE, RoundingMode.HALF_UP);
   }
 
-  private BigDecimal getMonthlyInstallment(LoanSimulationRequest request, BigDecimal monthlyInterestRate) {
-    BigDecimal compoundFactor = BigDecimal.ONE.add(monthlyInterestRate).pow(request.getTenorMonths());
+  private BigDecimal getMonthlyInstallment(
+      LoanSimulationRequest request, BigDecimal monthlyInterestRate) {
+    BigDecimal compoundFactor =
+        BigDecimal.ONE.add(monthlyInterestRate).pow(request.getTenorMonths());
     BigDecimal numerator = monthlyInterestRate.multiply(compoundFactor);
     BigDecimal denominator = compoundFactor.subtract(BigDecimal.ONE);
-    BigDecimal installmentFactor = numerator.divide(denominator, CALCULATION_SCALE, RoundingMode.HALF_UP);
-    return request.getRequestedAmount().multiply(installmentFactor).setScale(MONETARY_SCALE, RoundingMode.HALF_UP);
+    BigDecimal installmentFactor =
+        numerator.divide(denominator, CALCULATION_SCALE, RoundingMode.HALF_UP);
+    return request
+        .getRequestedAmount()
+        .multiply(installmentFactor)
+        .setScale(MONETARY_SCALE, RoundingMode.HALF_UP);
   }
 
   private BigDecimal getInterestPurpose(String loanPurpose) {

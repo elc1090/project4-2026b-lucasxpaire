@@ -42,7 +42,8 @@ public class LoanSimulationRequest {
   @Size(max = 50, message = "loanPurpose must not exceed 50 characters")
   @Pattern(
       regexp = "^(AGRICULTURE|EDUCATION|BUSINESS|PERSONAL|HOUSING|MEDICAL|OTHER)$",
-      message = "loanPurpose must be one of: AGRICULTURE, EDUCATION, BUSINESS, PERSONAL, HOUSING, MEDICAL, OTHER")
+      message =
+          "loanPurpose must be one of: AGRICULTURE, EDUCATION, BUSINESS, PERSONAL, HOUSING, MEDICAL, OTHER")
   private String loanPurpose;
 
   @NotNull

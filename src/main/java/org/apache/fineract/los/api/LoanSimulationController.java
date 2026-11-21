@@ -37,7 +37,8 @@ public class LoanSimulationController {
   private final LoanSimulationService loanSimulationService;
 
   @PostMapping
-  public ResponseEntity<LoanSimulationResponse> simulate(@Valid @RequestBody LoanSimulationRequest request) {
+  public ResponseEntity<LoanSimulationResponse> simulate(
+      @Valid @RequestBody LoanSimulationRequest request) {
     LoanSimulationResponse response = loanSimulationService.simulate(request);
     return ResponseEntity.ok(response);
   }
