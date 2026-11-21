@@ -21,3 +21,4 @@ export * from './loan-application.model';
 export * from './credit-score.model';
 export * from './api-error.model';
 export * from './staff-application.model';
+export * from './simulation.model';

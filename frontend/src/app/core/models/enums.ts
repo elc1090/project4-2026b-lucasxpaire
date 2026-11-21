@@ -40,6 +40,9 @@ export type EmploymentStatus = 'EMPLOYED' | 'SELF_EMPLOYED' | 'INFORMAL' | 'UNEM
 // Mirrors org.apache.fineract.los.domain.enums.RiskCategory exactly.
 export type RiskCategory = 'LOW' | 'MEDIUM' | 'HIGH';
 
+// Mirrors org.apache.fineract.los.domain.enums.EligibilityRisk exactly.
+export type EligibilityRisk = 'LOW_RISK' | 'MODERATE_RISK' | 'HIGH_RISK';
+
 // Mirrors org.apache.fineract.los.domain.enums.ApprovalDecision exactly.
 // Note: REFER exists on the backend — not just APPROVE/REJECT.
 export type ApprovalDecisionType = 'APPROVE' | 'REJECT' | 'REFER';
