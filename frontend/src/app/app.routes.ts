@@ -41,6 +41,13 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
+        path: 'simulate',
+        loadComponent: () =>
+          import('./features/loan-simulator/loan-simulator.component').then(
+            (m) => m.LoanSimulatorComponent,
+          ),
+      },
+      {
         path: 'apply',
         loadComponent: () =>
           import('./features/loan-application/loan-application-create.component').then(

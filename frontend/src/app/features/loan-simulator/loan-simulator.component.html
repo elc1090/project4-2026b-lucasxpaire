@@ -1,0 +1,250 @@
+<!--
+
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+
+-->
+<div class="page-header">
+  <h1>Loan Simulator & Pre-Eligibility Analysis</h1>
+  <p class="subtitle">
+    Simulate your loan installment using the French amortization schedule (Price) and check your
+    credit risk indicator in real time.
+  </p>
+</div>
+
+<div class="simulator-layout">
+  <!-- Left Side: Simulator Controls -->
+  <div class="controls-card">
+    <form [formGroup]="form" class="simulator-form">
+      <!-- Loan Amount Slider + Input -->
+      <div class="form-group">
+        <div class="group-header">
+          <label for="requestedAmount">Requested Amount</label>
+          <div class="amount-badge">
+            {{ form.get('requestedAmount')?.value | currency: 'USD' : 'symbol' : '1.0-0' }}
+          </div>
+        </div>
+        <div class="slider-container">
+          <input
+            id="amountSlider"
+            type="range"
+            formControlName="requestedAmount"
+            min="1000"
+            max="100000"
+            step="500"
+            class="range-slider"
+          />
+          <div class="slider-ticks">
+            <span>$1,000</span>
+            <span>$50,000</span>
+            <span>$100,000</span>
+          </div>
+        </div>
+        <div class="input-with-prefix">
+          <span class="prefix">$</span>
+          <input
+            id="requestedAmount"
+            type="number"
+            formControlName="requestedAmount"
+            min="100"
+            max="100000"
+            step="100"
+          />
+        </div>
+      </div>
+
+      <!-- Tenor (Months) Slider + Input -->
+      <div class="form-group">
+        <div class="group-header">
+          <label for="tenorMonths">Loan Term (Months)</label>
+          <div class="tenor-badge">{{ form.get('tenorMonths')?.value }} months</div>
+        </div>
+        <div class="slider-container">
+          <input
+            id="tenorSlider"
+            type="range"
+            formControlName="tenorMonths"
+            min="3"
+            max="60"
+            step="1"
+            class="range-slider"
+          />
+          <div class="slider-ticks">
+            <span>3 mo</span>
+            <span>12 mo</span>
+            <span>24 mo</span>
+            <span>36 mo</span>
+            <span>60 mo</span>
+          </div>
+        </div>
+        <input
+          id="tenorMonths"
+          type="number"
+          formControlName="tenorMonths"
+          min="1"
+          max="60"
+          step="1"
+        />
+      </div>
+
+      <!-- Loan Purpose -->
+      <div class="form-group">
+        <label for="loanPurpose">Loan Purpose</label>
+        <select id="loanPurpose" formControlName="loanPurpose">
+          @for (purpose of loanPurposes; track purpose.value) {
+            <option [value]="purpose.value">{{ purpose.label }}</option>
+          }
+        </select>
+        <span class="field-hint">
+          Dynamic interest rate is calibrated according to microfinance purpose risk tiers.
+        </span>
+      </div>
+
+      <!-- Income & Existing Obligations -->
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label for="monthlyIncome">Declared Monthly Income ($)</label>
+          <input
+            id="monthlyIncome"
+            type="number"
+            formControlName="monthlyIncome"
+            min="0.01"
+            step="100"
+            placeholder="e.g. 5000"
+          />
+        </div>
+
+        <div class="form-group half-width">
+          <label for="existingLoanObligations">Other Monthly Debts ($)</label>
+          <input
+            id="existingLoanObligations"
+            type="number"
+            formControlName="existingLoanObligations"
+            min="0"
+            step="50"
+            placeholder="e.g. 0"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Right Side: Real-Time Results & Predictive Risk Assessment -->
+  <div class="results-card">
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Calculating financial projections...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-banner">
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (result(); as res) {
+      <div class="results-content">
+        <!-- Monthly Installment Header -->
+        <div class="installment-box">
+          <span class="installment-label">Estimated Monthly Installment</span>
+          <div class="installment-value">
+            {{ res.monthlyInstallment | currency: 'USD' : 'symbol' : '1.2-2' }}
+            <span class="per-month">/ month</span>
+          </div>
+          <span class="schedule-type">French Amortization (Tabela Price)</span>
+        </div>
+
+        <!-- Metric Details Grid -->
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="metric-label">Monthly Rate</span>
+            <span class="metric-value">{{ res.monthlyInterestRate | percent: '1.2-2' }}</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Total Interest</span>
+            <span class="metric-value">
+              {{ res.totalInterest | currency: 'USD' : 'symbol' : '1.2-2' }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Total to Pay</span>
+            <span class="metric-value">
+              {{ res.totalAmountToPay | currency: 'USD' : 'symbol' : '1.2-2' }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Debt-to-Income (DTI)</span>
+            <span class="metric-value">{{ res.debtToIncomeRatio | number: '1.2-2' }}%</span>
+          </div>
+        </div>
+
+        <!-- Predictive Risk Assessment Section -->
+        <div class="eligibility-section" [attr.data-risk]="res.eligibilityStatus">
+          <div class="eligibility-header">
+            <span class="eligibility-title">Credit Pre-Eligibility Status</span>
+            <span class="risk-badge" [attr.data-risk]="res.eligibilityStatus">
+              @switch (res.eligibilityStatus) {
+                @case ('LOW_RISK') {
+                  Low Risk
+                }
+                @case ('MODERATE_RISK') {
+                  Moderate Risk
+                }
+                @case ('HIGH_RISK') {
+                  High Risk
+                }
+              }
+            </span>
+          </div>
+
+          <!-- DTI Progress Meter -->
+          <div class="dti-meter">
+            <div class="meter-bar">
+              <div
+                class="meter-fill"
+                [attr.data-risk]="res.eligibilityStatus"
+                [style.width.%]="res.debtToIncomeRatio > 100 ? 100 : res.debtToIncomeRatio"
+              ></div>
+            </div>
+            <div class="meter-labels">
+              <span>0%</span>
+              <span class="threshold-label">30% (Low)</span>
+              <span class="threshold-label">40% (Mod)</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          <p class="recommendation-text">{{ res.recommendationMessage }}</p>
+        </div>
+
+        <!-- Action Button -->
+        <button
+          type="button"
+          class="apply-button"
+          (click)="applyWithSimulation()"
+          [disabled]="loading() || form.invalid"
+        >
+          <span>Apply with these values</span>
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"
+            />
+          </svg>
+        </button>
+      </div>
+    }
+  </div>
+</div>

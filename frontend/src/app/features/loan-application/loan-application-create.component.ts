@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerLoanApplicationService } from '../../core/services/customer-loan-application.service';
 import { CreateLoanApplicationRequest } from '../../core/models';
 
@@ -30,10 +30,11 @@ import { CreateLoanApplicationRequest } from '../../core/models';
   templateUrl: './loan-application-create.component.html',
   styleUrl: './loan-application-create.component.scss',
 })
-export class LoanApplicationCreateComponent {
+export class LoanApplicationCreateComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly customerLoanApplicationService = inject(CustomerLoanApplicationService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   submitting = signal(false);
   error = signal<string | null>(null);
@@ -54,6 +55,21 @@ export class LoanApplicationCreateComponent {
       fineractClientId: [null as number | null],
     }),
   });
+
+  ngOnInit(): void {
+    const params = this.route.snapshot.queryParams;
+    if (params['amount']) {
+      this.form.patchValue({
+        requestedAmount: Number(params['amount']),
+        tenorMonths: params['tenor'] ? Number(params['tenor']) : 12,
+        loanPurpose: params['purpose'] || 'BUSINESS',
+        applicant: {
+          monthlyIncome: params['income'] ? Number(params['income']) : null,
+          existingLoanObligations: params['obligations'] ? Number(params['obligations']) : 0,
+        },
+      });
+    }
+  }
 
   submit(): void {
     if (this.form.invalid) return;

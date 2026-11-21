@@ -48,6 +48,7 @@ export class MainLayoutComponent implements OnInit {
 
   readonly navItems: NavItem[] = [
     { label: 'Dashboard', path: '/dashboard', enabled: true, icon: 'grid' },
+    { label: 'Simulator', path: '/simulate', enabled: true, icon: 'calculator' },
     { label: 'Loan Applications', path: '/loan-application', enabled: true, icon: 'file-text' },
     { label: 'Documents', path: '/documents', enabled: false, icon: 'folder' },
     { label: 'My Loans', path: '/my-loans', enabled: true, icon: 'layers' },
