@@ -6,6 +6,24 @@
 
 https://frontend-production-0e001ab8.up.railway.app
 
+## Execução e testes
+
+Para testar a aplicação publicada pelo navegador:
+1. Acesse https://frontend-production-0e001ab8.up.railway.app
+2. Na tela de login do cliente, entre com usuário `cliente` e senha `123456`
+3. No menu lateral, clique em Simulator para testar o simulador e o envio dos dados para o formulário de solicitação
+
+Observação: a rota /staff/login é destinada a funcionários internos e delega a autenticação para um servidor Apache Fineract Core externo, por isso o teste do simulador deve ser feito pelo portal do cliente.
+
+Para rodar os testes automatizados localmente:
+- Backend: ./mvnw test
+- Frontend: cd frontend && npm test
+
+Para executar localmente:
+- Banco PostgreSQL na porta 5432 com banco los_db
+- Backend na porta 8082: ./mvnw spring-boot:run
+- Frontend na porta 4200: cd frontend && npm start
+
 ## Desenvolvedor(a) / Desenvolvedor(es/as)
 
 Nome: Lucas Xavier Pairé 
