@@ -18,9 +18,7 @@
  */
 export const environment = {
   production: true,
-  // In production, the LOS backend MUST be served over HTTPS.
-  // Replace these placeholders with the actual deployed API origin.
-  apiBaseUrl: 'https://localhost:8082/api/v1',
-  losApiUrl: 'https://localhost:8082/api/v1',
+  apiBaseUrl: 'https://backend-production-655879f7.up.railway.app/api/v1',
+  losApiUrl: 'https://backend-production-655879f7.up.railway.app/api/v1',
   tenantId: 'default',
 };

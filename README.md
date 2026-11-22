@@ -4,7 +4,9 @@
 
 ## Acesso
 
-Substituir pela URL do aplicativo publicado ou link de acesso ao projeto.
+https://frontend-production-0e001ab8.up.railway.app
+
+Conta de teste (portal do cliente): usuário `cliente` e senha `123456`.
 
 ## Desenvolvedor(a) / Desenvolvedor(es/as)
 
