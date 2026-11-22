@@ -112,6 +112,11 @@ export class LoanSimulatorComponent implements OnInit {
     });
   }
 
+  onRangeInput(controlName: 'requestedAmount' | 'tenorMonths', event: Event): void {
+    const value = Number((event.target as HTMLInputElement).value);
+    this.form.controls[controlName].setValue(value);
+  }
+
   applyWithSimulation(): void {
     const values = this.form.getRawValue();
     this.router.navigate(['/apply'], {

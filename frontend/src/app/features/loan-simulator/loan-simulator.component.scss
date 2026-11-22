@@ -199,8 +199,8 @@
 }
 
 .installment-box {
-  background: var(--color-primary-light);
-  border: 1px solid rgba(14, 124, 123, 0.2);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 1.25rem;
   text-align: center;
@@ -212,27 +212,20 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 600;
-    color: var(--color-primary-dark);
+    color: var(--color-text-muted);
     margin-bottom: 0.25rem;
   }
 
   .installment-value {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--color-primary-dark);
+    color: var(--color-text);
 
     .per-month {
       font-size: 0.9rem;
       font-weight: 500;
       color: var(--color-text-muted);
     }
-  }
-
-  .schedule-type {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-    margin-top: 0.25rem;
   }
 }
 
@@ -270,41 +263,28 @@
   border-radius: var(--radius);
   padding: 1.25rem 1rem;
   margin-bottom: 1.25rem;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &[data-risk='LOW_RISK'] {
-    border-color: rgba(34, 197, 94, 0.45);
-  }
-
-  &[data-risk='MODERATE_RISK'] {
-    border-color: rgba(245, 158, 11, 0.45);
-  }
-
-  &[data-risk='HIGH_RISK'] {
-    border-color: rgba(239, 68, 68, 0.45);
-  }
 
   .eligibility-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     margin-bottom: 0.85rem;
 
     .eligibility-title {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.03em;
       color: var(--color-text-muted);
+      white-space: nowrap;
     }
 
     .risk-badge {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
-      padding: 0.25rem 0.65rem;
+      padding: 0.25rem 0.6rem;
+      min-width: 6.5rem;
       border-radius: 9999px;
       white-space: nowrap;
       flex-shrink: 0;
@@ -334,6 +314,7 @@
     margin-bottom: 0.85rem;
 
     .meter-bar {
+      position: relative;
       width: 100%;
       height: 8px;
       background: var(--color-border);
@@ -356,48 +337,66 @@
           background: #dc2626;
         }
       }
+
+      .meter-marker {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--color-bg);
+        opacity: 0.7;
+        transform: translateX(-50%);
+      }
     }
 
-    .meter-scale {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 0.4rem;
+    .meter-boundaries {
+      position: relative;
+      height: 1.1rem;
+      margin-top: 0.35rem;
 
-      .scale-col {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      .boundary {
+        position: absolute;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        line-height: 1;
 
         &.start {
-          align-items: flex-start;
+          left: 0;
         }
 
-        &.high {
-          align-items: flex-end;
+        &.mark {
+          transform: translateX(-50%);
         }
 
-        .scale-val {
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--color-text-muted);
+        &.end {
+          right: 0;
+        }
+      }
+    }
+
+    .meter-zones {
+      position: relative;
+      height: 1rem;
+      margin-top: 0.15rem;
+
+      .zone {
+        position: absolute;
+        transform: translateX(-50%);
+        font-size: 0.7rem;
+        font-weight: 600;
+        line-height: 1;
+
+        &.text-low {
+          color: #22c55e;
         }
 
-        .scale-label {
-          font-size: 0.7rem;
-          font-weight: 600;
-          margin-top: 0.15rem;
+        &.text-med {
+          color: #f59e0b;
+        }
 
-          &.text-low {
-            color: #22c55e;
-          }
-
-          &.text-med {
-            color: #f59e0b;
-          }
-
-          &.text-high {
-            color: #ef4444;
-          }
+        &.text-high {
+          color: #ef4444;
         }
       }
     }

@@ -88,4 +88,20 @@ describe('LoanSimulatorComponent', () => {
       },
     });
   });
+
+  it('updates number inputs when range sliders change', () => {
+    const amountSlider: HTMLInputElement = fixture.nativeElement.querySelector('#amountSlider');
+    const amountInput: HTMLInputElement = fixture.nativeElement.querySelector('#requestedAmount');
+    const tenorSlider: HTMLInputElement = fixture.nativeElement.querySelector('#tenorSlider');
+    const tenorInput: HTMLInputElement = fixture.nativeElement.querySelector('#tenorMonths');
+
+    amountSlider.value = '25000';
+    amountSlider.dispatchEvent(new Event('input'));
+    tenorSlider.value = '36';
+    tenorSlider.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(amountInput.value).toBe('25000');
+    expect(tenorInput.value).toBe('36');
+  });
 });

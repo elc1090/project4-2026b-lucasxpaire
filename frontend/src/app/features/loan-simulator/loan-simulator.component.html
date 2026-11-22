@@ -42,7 +42,8 @@
           <input
             id="amountSlider"
             type="range"
-            formControlName="requestedAmount"
+            [value]="form.controls.requestedAmount.value"
+            (input)="onRangeInput('requestedAmount', $event)"
             min="1000"
             max="100000"
             step="500"
@@ -77,7 +78,8 @@
           <input
             id="tenorSlider"
             type="range"
-            formControlName="tenorMonths"
+            [value]="form.controls.tenorMonths.value"
+            (input)="onRangeInput('tenorMonths', $event)"
             min="3"
             max="60"
             step="1"
@@ -129,7 +131,7 @@
         </div>
 
         <div class="form-group half-width">
-          <label for="existingLoanObligations">Other Monthly Debts ($)</label>
+          <label for="existingLoanObligations">Existing Loan Obligations ($)</label>
           <input
             id="existingLoanObligations"
             type="number"
@@ -163,7 +165,6 @@
             {{ res.monthlyInstallment | currency: 'USD' : 'symbol' : '1.2-2' }}
             <span class="per-month">/ month</span>
           </div>
-          <span class="schedule-type">French Amortization (Tabela Price)</span>
         </div>
 
         <!-- Metric Details Grid -->
@@ -217,24 +218,19 @@
                 [attr.data-risk]="res.eligibilityStatus"
                 [style.width.%]="res.debtToIncomeRatio > 100 ? 100 : res.debtToIncomeRatio"
               ></div>
+              <div class="meter-marker" style="left: 30%"></div>
+              <div class="meter-marker" style="left: 40%"></div>
             </div>
-            <div class="meter-scale">
-              <div class="scale-col start">
-                <span class="scale-val">0%</span>
-                <span class="scale-label"></span>
-              </div>
-              <div class="scale-col low">
-                <span class="scale-val">30%</span>
-                <span class="scale-label text-low">Low</span>
-              </div>
-              <div class="scale-col med">
-                <span class="scale-val">40%</span>
-                <span class="scale-label text-med">Medium</span>
-              </div>
-              <div class="scale-col high">
-                <span class="scale-val">100%</span>
-                <span class="scale-label text-high">High</span>
-              </div>
+            <div class="meter-boundaries">
+              <span class="boundary start">0%</span>
+              <span class="boundary mark" style="left: 30%">30%</span>
+              <span class="boundary mark" style="left: 40%">40%</span>
+              <span class="boundary end">100%</span>
+            </div>
+            <div class="meter-zones">
+              <span class="zone text-low" style="left: 15%">Low</span>
+              <span class="zone text-med" style="left: 35%">Medium</span>
+              <span class="zone text-high" style="left: 70%">High</span>
             </div>
           </div>
 
