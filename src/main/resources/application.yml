@@ -23,7 +23,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/los_db}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:sujan2003}
+    password: ${DB_PASSWORD:postgres}
 
     hikari:
       pool-name: LOS-HikariPool
@@ -51,7 +51,7 @@ spring:
     baseline-on-migrate: false
 
 server:
-  port: 8082
+  port: ${PORT:8082}
 
 management:
   endpoints:
@@ -68,6 +68,8 @@ logging:
     org.flywaydb: DEBUG
 
 los:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:4201,http://localhost:60506,http://localhost:49954}
 
   jwt:
     secret: ${JWT_SECRET:los-dev-secret-min-32-chars-change-in-prod!!}

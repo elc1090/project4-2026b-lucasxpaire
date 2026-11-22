@@ -175,17 +175,14 @@ public class SecurityConfig {
     return http.build();
   }
 
+  @org.springframework.beans.factory.annotation.Value(
+      "${los.cors.allowed-origins:http://localhost:4200,http://localhost:4201,http://localhost:60506,http://localhost:49954}")
+  private List<String> allowedOrigins;
+
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration configuration = new CorsConfiguration();
-    // localhost:4200 / 4201 = LOS Angular frontend
-    // localhost:60506 / 49954 = Fineract Backoffice UI
-    configuration.setAllowedOrigins(
-        List.of(
-            "http://localhost:4200",
-            "http://localhost:4201",
-            "http://localhost:60506",
-            "http://localhost:49954"));
+    configuration.setAllowedOrigins(allowedOrigins);
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);
