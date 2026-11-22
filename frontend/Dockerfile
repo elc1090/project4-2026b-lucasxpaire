@@ -18,16 +18,16 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-COPY package*.json ./
+COPY frontend/package*.json ./
 RUN npm install --no-audit --no-fund
 
-COPY . .
+COPY frontend/ .
 RUN npm run build
 
 FROM nginx:alpine
 ENV PORT=80
 COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY frontend/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
