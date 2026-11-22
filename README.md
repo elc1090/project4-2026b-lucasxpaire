@@ -1,202 +1,131 @@
-<!--
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
+# Simulador Financeiro e Pré-Análise de Crédito (Apache Fineract LOS)
 
-  http://www.apache.org/licenses/LICENSE-2.0
+![Demonstração do simulador de empréstimos](./projeto.gif "Demonstração do simulador financeiro")
 
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
--->
+## Acesso
 
-# Apache Fineract Loan Origination System
+Substituir pela URL do aplicativo publicado ou link de acesso ao projeto.
 
-> **⚠️ Warning:** This is a proof-of-concept implementation developed as part of GSoC 2026. It is not production-ready and should not be used in production environments without significant additional security hardening, testing, and compliance validation.
+## Desenvolvedor(a) / Desenvolvedor(es/as)
 
-A standalone loan origination service for Apache Fineract. Manages the complete pre-disbursement workflow from customer application through credit assessment, multi-stage approval, and loan creation in Fineract.
+Nome: Lucas Xavier Pairé 
+Curso: Ciência da Computação
 
-The project was started in May 2026 as part of the Google Summer of Code (GSoC) program under [FINERACT-2442](https://issues.apache.org/jira/browse/FINERACT-2442). It has two components:
+## Proposta
 
-* **Backend:** A Spring Boot service providing REST APIs, state machine workflow, credit scoring, and Fineract integration
-* **Frontend:** An Angular client with role-based customer and staff portals
+A proposta foi feita em cima de um sistema de código aberto, voltada para o fluxo de solicitação e análise de empréstimos antes da liberação do crédito.
 
-The LOS is the policy enforcement point for loan applications. It keeps its own state (applications, profiles, approvals, scores) in PostgreSQL; Fineract remains the system of record for loan accounts after disbursement.
+Em comparação com os projetos anteriores desenvolvidos, que eram aplicações menores criadas do zero, este trabalho parte de uma base existente e mais complexa, com arquitetura e regras de negócio bem definidas.
 
-## Requirements
+A funcionalidade adicionada em cima do sistema existente é um simulador financeiro interativo com pré-análise de elegibilidade de crédito. Nela, o cliente consegue informar o valor desejado, o prazo em meses, a finalidade do empréstimo, sua renda mensal e possíveis dívidas existentes. O sistema calcula o valor da parcela, a taxa de juros conforme a finalidade, o percentual de comprometimento de renda e uma classificação de risco (baixo, moderado ou alto), permitindo levar os dados simulados diretamente para o formulário de solicitação de empréstimo.
 
-* Java >= 21
-* Node.js >= 20 and npm >= 10 (for the frontend)
-* PostgreSQL >= 15 (the LOS keeps its own database, separate from Fineract's)
-* Docker and Docker Compose
-* Apache Fineract (a running Fineract instance is required for production integration)
+## Desenvolvimento
 
-The bundled Docker Compose stack provides PostgreSQL for local development. For Fineract integration, see [Apache Fineract](https://github.com/apache/fineract).
+### Processo
 
-## Security
+Primeiramente, tive o desafio de entender o sistema já estruturado em camadas e compreender as regras de negócio envolvidas na minha solução. Inicialmente, rodei o projeto e fui testar as páginas pelo navegador para entender como as coisas funcionavam. Por ter sistema de login, entrei no backend para saber quais eram os tipos de perfis de usuário e suas autorizações. Descobri que existiam 3 tipos de usuário: admin, staff e cliente.
 
-The LOS enforces separate customer and staff authentication with JWT tokens, role-based access control mapped to workflow stages, and state machine validation. Credit scoring is server-side only.
+Um administrador pode fazer tudo no sistema, incluindo criar contas do tipo staff e cliente. Um staff possui permissões referentes à análise da solicitação de empréstimo. Um cliente possui apenas permissões referentes a solicitar empréstimo e visualizar os dados dele.
 
-See [docs/security/](docs/security/) for the complete security model, authentication, authorization, and threat analysis.
+Então, criei 2 contas que não existiam no banco, do tipo staff e cliente. Entrei na conta de cliente e quis entender os campos solicitados para fazer o empréstimo. Em paralelo, abri os DTOs referentes ao formulário de solicitação de empréstimo para entender quais dados eram obrigatórios, quais eram as validações e identificar alguma regra de negócio que pudesse ajudar a construir minha solução. Com isso, descobri que muitos campos da própria solicitação seriam reaproveitados para o simulador, o que facilitou na hora de criar os DTOs. Também descobri que o sistema já utilizava um motor de score para classificar o risco do empréstimo por meio de alguns critérios, e um deles seria usado no simulador, que é a finalidade do empréstimo (consumo, agricultura, educação, entre outros).
 
-## Project Layout
+Com essas descobertas, notei um detalhe importante quando usei o sistema no papel de cliente: eu não conseguia ter um indicativo prévio se as informações que estava preenchendo seriam passíveis de aprovação ou não. Então pensei na solução de um simulador que pega os dados da solicitação e calcula em tempo real se aquela proposta possui condições boas, com chance de aprovação, ou condições ruins, com risco de reprovação.
 
-The LOS is organized by feature and bounded context:
+Partindo para o código, foram criados os DTOs utilizando como referência os campos do próprio formulário de solicitação de empréstimo. No DTO de requisição, recebemos o valor requisitado, o prazo de parcelamento, a finalidade do empréstimo, a renda mensal do cliente e as dívidas já existentes. No DTO de resposta, entregamos o valor da parcela por mês, o valor total de juros, a taxa de juros mensal, o valor total a pagar pelo empréstimo, o percentual de comprometimento de renda, o status de elegibilidade de risco e uma mensagem recomendada do sistema.
 
-```
-fineract-loan-origination/
-├── src/main/java/org/apache/fineract/los/
-│   ├── api/              REST controllers
-│   ├── bridge/           Fineract integration (mock and real adapters)
-│   ├── domain/           JPA entities
-│   ├── scoring/          Credit scoring engine
-│   ├── security/         Authentication and authorization
-│   ├── service/          Business logic
-│   ├── statemachine/     Application state machine
-│   └── workflow/         Multi-stage approval routing
-├── frontend/             Angular client
-│   └── src/app/
-│       ├── features/     Customer and staff modules
-│       ├── core/         Services and guards
-│       └── shared/       Reusable components
-├── docs/                 Documentation
-└── docker/               Docker Compose stack
+Depois, foram criados o controller e o service para receber a requisição, validar os campos e aplicar as regras de negócio referentes ao cálculo das parcelas dessa simulação. Para isso, utilizei o método de cálculo conhecido como Tabela Price, no qual todas as parcelas possuem o mesmo valor, sendo que dentro de cada parcela há a soma entre o valor amortizado e os juros daquele mês. No começo os juros são mais altos, mas conforme os pagamentos vão avançando, os juros diminuem. Também é aplicada uma taxa de juros dinâmica conforme a finalidade do empréstimo, dividida em quatro faixas: empréstimos para consumo pessoal ou especulação possuem maior risco de inadimplência e por isso têm taxa mensal mais alta, enquanto finalidades produtivas, como agricultura ou negócios, possuem taxas menores ao mês.
+
+Por fim, é calculado o comprometimento de renda para atribuir à simulação uma classificação de elegibilidade nos níveis de baixo risco, risco moderado e alto risco. Para isso, somam-se as dívidas atuais do cliente com o valor da nova parcela e divide-se pela renda mensal para obter uma porcentagem. Quanto maior essa porcentagem, maior é o risco. Com isso, o cliente consegue visualizar se terá condições financeiras para pagar o empréstimo. Após a simulação, também é possível enviar os valores preenchidos direto para o formulário de solicitação, poupando o cliente de ter que redigitar tudo.
+
+Após a criação das regras de negócio e dos testes unitários para validação, foram feitos os componentes no frontend, adicionando o service para consumir as rotas do backend e a estrutura da página mantendo o padrão visual do sistema. Também foram realizados testes manuais e verificações no navegador com o Playwright MCP para garantir que a tela não apresentasse comportamentos inesperados.
+
+No geral, o trabalho se resumiu a entender a arquitetura e as regras de negócio já existentes no sistema e aplicar os mesmos padrões de código do projeto, respeitando a responsabilidade única em cada camada.
+
+
+### Trechos de código
+
+1. Cálculo da parcela pela Tabela P rice no backend (`src/main/java/org/apache/fineract/los/service/LoanSimulationService.java`):
+
+```java
+  private BigDecimal getMonthlyInstallment(
+      LoanSimulationRequest request, BigDecimal monthlyInterestRate) {
+    BigDecimal compoundFactor =
+        BigDecimal.ONE.add(monthlyInterestRate).pow(request.getTenorMonths());
+    BigDecimal numerator = monthlyInterestRate.multiply(compoundFactor);
+    BigDecimal denominator = compoundFactor.subtract(BigDecimal.ONE);
+    BigDecimal installmentFactor =
+        numerator.divide(denominator, CALCULATION_SCALE, RoundingMode.HALF_UP);
+    return request
+        .getRequestedAmount()
+        .multiply(installmentFactor)
+        .setScale(MONETARY_SCALE, RoundingMode.HALF_UP);
+  }
 ```
 
-See [docs/architecture/](docs/architecture/) for detailed component descriptions and integration patterns.
+Neste trecho, o cálculo financeiro usa `BigDecimal` com escala intermediária de 10 casas decimais (`CALCULATION_SCALE`) e arredondamento `HALF_UP`. A escolha por `BigDecimal` em vez de `double` evita erros de precisão comuns em operações monetárias com ponto flutuante.
 
-## Instructions
+2. Classificação de risco pelo comprometimento de renda (`src/main/java/org/apache/fineract/los/domain/enums/EligibilityRisk.java`):
 
-### Backend
-
-Start PostgreSQL:
-
-```bash
-docker compose -f docker/docker-compose.yml up -d
+```java
+  public static EligibilityRisk from(BigDecimal debtToIncomeRatio) {
+    if (debtToIncomeRatio.compareTo(BigDecimal.valueOf(30)) <= 0) {
+      return LOW_RISK;
+    }
+    if (debtToIncomeRatio.compareTo(BigDecimal.valueOf(40)) <= 0) {
+      return MODERATE_RISK;
+    }
+    return HIGH_RISK;
+  }
 ```
 
-Start the Spring Boot application:
+Esse método centraliza as faixas de corte do comprometimento de renda. Se o comprometimento da renda ficar até 30%, o risco é baixo; entre 30% e 40%, moderado; acima de 40%, alto. Cada opção do enum também guarda a mensagem de recomendação exibida na tela.
 
-```bash
-./mvnw spring-boot:run
+3. Atualização reativa dos cálculos no frontend (`frontend/src/app/features/loan-simulator/loan-simulator.component.ts`):
+
+```typescript
+    this.form.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        filter(() => this.form.valid),
+        switchMap((value) => {
+          this.loading.set(true);
+          this.error.set(null);
+          return this.simulationService.simulate(value as unknown as LoanSimulationRequest).pipe(
+            catchError((err) => {
+              this.loading.set(false);
+              this.error.set(
+                err?.error?.message ?? 'Could not calculate simulation. Please check your inputs.',
+              );
+              return EMPTY;
+            }),
+          );
+        }),
+        takeUntilDestroyed(),
+      )
 ```
 
-On Windows:
+Esse trecho escuta as mudanças do formulário e aplica `debounceTime(300)` para esperar 300ms antes de chamar a API, evitando requisições a cada movimento do slider. O `switchMap` cancela requisições anteriores pendentes caso o usuário altere os valores rapidamente, evitando que respostas antigas sobrescrevam resultados mais novos.
 
-```cmd
-.\mvnw.cmd spring-boot:run
-```
+## Tecnologias
 
-The backend starts on **http://localhost:8082**. Verify:
+### Linguagens e afins
 
-```bash
-curl http://localhost:8082/actuator/health
-```
+- Java 21 e Spring Boot 4.1
+- TypeScript e Angular 22
+- HTML5 e SCSS
+- PostgreSQL 15 e Flyway
+- JUnit 5 e PLaywright
 
-### Frontend
+### Ambiente de desenvolvimento
 
-```bash
-cd frontend
-npm install
-npm start
-```
+- IntelliJ IDEA para execução e depuração do backend e frontend
+- Git e GitHub para controle de versão
+- Antigravity como agente de IA de apoio no desenvolvimento e nos testes
 
-The frontend runs on **http://localhost:4200** and proxies API requests to port 8082.
+## Referências e créditos
 
-### Fineract Integration
+- Repositório base Apache Fineract Loan Origination: https://github.com/apache/fineract-loan-origination
 
-The LOS integrates with Fineract via REST APIs. Configure in `src/main/resources/application.yml`:
-
-```yaml
-los:
-  fineract:
-    base-url: ${FINERACT_BASE_URL:https://localhost:8443}
-    mock-enabled: false
-```
-
-Set `mock-enabled: true` for offline development. See [docs/architecture/integration.adoc](docs/architecture/integration.adoc) for details.
-
-For Fineract setup, follow the [Apache Fineract Quick Start](https://github.com/apache/fineract#quick-start).
-
-## Configuration
-
-Key configuration is in `src/main/resources/application.yml`:
-
-* `spring.datasource.url` — LOS PostgreSQL connection
-* `los.fineract.base-url` — Fineract API endpoint
-* `los.jwt.secret` — JWT signing key (override via `JWT_SECRET` environment variable)
-* `los.scoring.weights.*` — Credit scoring factor weights
-* `los.workflow.stages` — Approval routing stages
-
-Use environment variables to override defaults. Never commit secrets to version control.
-
-See [docs/development/configuration.adoc](docs/development/configuration.adoc) for complete reference.
-
-## Testing
-
-Backend unit tests:
-
-```bash
-./mvnw test
-```
-
-Backend integration tests (uses Testcontainers for PostgreSQL):
-
-```bash
-./mvnw verify
-```
-
-Frontend tests:
-
-```bash
-cd frontend
-npm test
-```
-
-See [docs/development/testing.adoc](docs/development/testing.adoc) for testing strategy and patterns.
-
-## API
-
-The backend exposes a REST API under `/api`. Interactive Swagger documentation is available at `http://localhost:8082/swagger-ui/index.html` when running.
-
-Key endpoints include customer registration and authentication, staff authentication, application submission and review, approval workflow, and disbursement. All authenticated endpoints require `Authorization: Bearer <JWT_TOKEN>` header.
-
-See [docs/api/](docs/api/) for complete REST API reference.
-
-## Workflows
-
-The LOS implements a six-state application lifecycle: `DRAFT → SUBMITTED → UNDER_REVIEW → APPROVED / REJECTED / REFERRED → DISBURSED`. Invalid transitions are rejected by the state machine. Configurable multi-stage approval routing validates progression through workflow stages before disbursement.
-
-See [docs/workflows/](docs/workflows/) for detailed documentation on loan origination lifecycle, approval workflow, credit scoring, and disbursement.
-
-## Documentation
-
-* **[Architecture](docs/architecture/)** — System design, backend, frontend, and Fineract integration
-* **[API](docs/api/)** — REST API reference
-* **[Security](docs/security/)** — Authentication, authorization, and security architecture
-* **[Development](docs/development/)** — Setup, configuration, testing, and contribution workflow
-* **[Workflows](docs/workflows/)** — Loan lifecycle, approval, scoring, and disbursement
-* **[ADRs](docs/adr/)** — Architecture decision records
-
-See [docs/index.adoc](docs/index.adoc) for the complete documentation index.
-
-## Community
-
-This project is part of the Apache Fineract community. If you are interested in contributing, please read [CONTRIBUTING.md](CONTRIBUTING.md) and join the [developer mailing list](mailto:dev@fineract.apache.org) or the [Fineract Matrix channel](https://matrix.to/#/#apache-fineract-gsoc:matrix.org).
-
-Issues are tracked on [Apache JIRA (FINERACT-2442)](https://issues.apache.org/jira/browse/FINERACT-2442).
-
-This project follows the [Apache Software Foundation Code of Conduct](https://www.apache.org/foundation/policies/conduct.html).
-
-## License
-
-Licensed under the Apache License, Version 2.0. See [LICENSE.md](LICENSE.md) for details.
-
-
+---
+Projeto entregue para a disciplina de [Desenvolvimento de Software para a Web](http://github.com/andreainfufsm/elc1090-2026b) em 2026b
