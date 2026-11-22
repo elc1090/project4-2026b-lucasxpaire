@@ -22,9 +22,12 @@ package org.apache.fineract.los.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.math.BigDecimal;
 import org.apache.fineract.los.api.dto.response.LoanSimulationResponse;
 import org.apache.fineract.los.domain.enums.EligibilityRisk;
+import org.apache.fineract.los.domain.enums.LoanPurpose;
 import org.apache.fineract.los.dto.request.LoanSimulationRequest;
 import org.apache.fineract.los.scoring.ScoringWeightsProperties;
 import org.apache.fineract.los.scoring.factors.LoanPurposeRiskFactor;
@@ -211,5 +214,27 @@ class LoanSimulationServiceTest {
 
     assertThat(response.getDebtToIncomeRatio()).isEqualByComparingTo("18.34");
     assertThat(response.getEligibilityStatus()).isEqualTo(EligibilityRisk.LOW_RISK.name());
+  }
+
+  @Test
+  @DisplayName(
+      "Should validate all LoanPurpose enum values including HOME_IMPROVEMENT, CONSUMER and SPECULATION")
+  void shouldAcceptAllLoanPurposeEnumValuesInRequestValidation() {
+    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+    for (LoanPurpose purpose : LoanPurpose.values()) {
+      LoanSimulationRequest request =
+          LoanSimulationRequest.builder()
+              .requestedAmount(new BigDecimal("10000.00"))
+              .tenorMonths(12)
+              .loanPurpose(purpose.name())
+              .monthlyIncome(new BigDecimal("5000.00"))
+              .existingLoanObligations(BigDecimal.ZERO)
+              .build();
+
+      assertThat(validator.validate(request))
+          .as("Validation violations for purpose %s", purpose)
+          .isEmpty();
+    }
   }
 }
